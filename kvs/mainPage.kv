@@ -1,0 +1,350 @@
+<Row@BoxLayout>:
+    id: box
+    orientation: 'vertical'
+    canvas.before:
+        Color:
+            rgba: 0.3,0.3,0.3,1
+        Rectangle:
+            size: self.size
+            pos: self.pos
+    
+    image: ''
+    sz: ''
+    txt: ''
+    clr: (0.2,0.2,0.2,1)
+    rez: ''
+    GridLayout:
+        rows: 1
+        canvas.before:
+            Color:
+                # rgba: 0.3,0.3,0.3,1
+                rgba: root.clr
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        GridLayout:
+            size_hint: (1, 1)
+            cols: 1
+            ImageButton:
+                background_normal: ''
+                background_color: (1, 1, 1, 1)
+                source: '{}'.format(root.image)
+                on_release: root.parent.parent.parent.parent.parent.open_dir(self, root.txt)
+            Label:
+                size_hint: 1,None
+                height: '33dp'
+                text: root.txt
+                text_size: self.size
+                font_size: '12dp'
+        GridLayout:
+            id: grd1
+            cols: 1
+            size_hint: None,1
+            width: '160dp'
+            Button:
+                text: "Open Folder"
+                size_hint: (None, None)
+                width: '100dp'
+                height: '35dp'
+                on_release: root.parent.parent.parent.parent.parent.open_dir(root, '\\'.join(root.txt.split('\\')[:-1]))
+            GridLayout:
+                rows: 1
+                size_hint: (1, None)
+                height: '35dp'
+                Button:
+                    text: "Move"
+                    size_hint: (None, 1)
+                    width: '50dp'
+                    # height: '35dp'
+                    color: 1,0.5,0,1
+                    on_release: root.parent.parent.parent.parent.parent.move_file(root, root.txt)
+                Button:
+                    text: "Keep"
+                    size_hint: (None, 1)
+                    width: '50dp'
+                    # height: '35dp'
+                    color: 1,1,1,1
+                    on_release: root.parent.parent.parent.parent.parent.closeRow(root, root.txt)
+            Label:
+                size_hint: 1,None
+                height: '25dp'
+                text: '{}'.format(root.sz)
+                text_size: self.size
+                valign: 'middle'
+                font_size: '12dp'
+            Label:
+                id: resolution
+                size_hint: 1,None
+                height: '25dp'
+                text: 'W-H: {}'.format(root.rez)
+                text_size: self.size
+                valign: 'middle'
+                font_size: '12dp'
+
+
+
+
+
+<MainPage>:
+    id: mainpage
+    name: 'mainPage'
+
+    # Main window
+    BoxLayout:
+        id: mainBox
+        orientation: 'vertical'
+        spacing: 5
+        # Source/Destination/Extension
+        GridLayout:
+            rows:1
+            size_hint: (1, None)
+            height: '30dp'
+            Button:
+                id: sourceBtn
+                text: 'Source Folder'
+                on_release: root.chooseDir()
+            Button:
+                id: destinationBtn
+                text: 'Destination Folder'
+                on_release: root.chooseMovedDirname()
+            TextInput:
+                id: extension
+                multiline: False
+                hint_text: 'extension'
+                text: ''
+                size_hint: (0.2, 1)
+        # Slider
+        GridLayout:
+            rows: 1
+            size_hint: (1, None)
+            height: '30dp'
+            Slider:
+                id: sliderBase
+                orientation: 'horizontal'
+                disabled: False
+                min: 120
+                max: 1000
+                step: 5
+                value: root.val
+                on_value: root.sliderValue(self.value)
+            Label:
+                text: str(sliderBase.value)
+                size_hint: (None, 1)
+                width: '50dp'
+        GridLayout:
+            rows: 3
+            size_hint: (1, None)
+            height: '80dp'
+            # Source/Destination Label
+            GridLayout:
+                rows: 1
+                Label:
+                    id: lbl
+                    text: 'Source'
+                    size_hint: (1, None)
+                    height: '25dp'
+                    text_size: self.size
+                    halign: 'left'
+                    valign: 'middle'
+                    color: 1,0,0,1
+                    font_size: '12dp'
+                Label:
+                    id: lbl1
+                    text: 'Destination'
+                    size_hint: (1, None)
+                    height: '25dp'
+                    text_size: self.size
+                    halign: 'left'
+                    valign: 'middle'
+                    color: 1,0,0,1
+                    font_size: '12dp'
+            GridLayout:
+                rows:1
+                Label:
+                    id: itm
+                    text: ''
+                    text_size: self.size
+                    halign: 'left'
+                    valign: 'middle'
+                Label:
+                    id: remaining
+                    text: ''
+                    text_size: self.size
+                    halign: 'left'
+                    valign: 'middle'
+                Button:
+                    id: allImages
+                    disabled: True
+                    name: 'allImages'
+                    text: 'Only images'
+                    size_hint: (None, 1)
+                    width: '100dp'
+                    on_release: 
+                        root.allImages()
+                        # root.colorBtn(self)
+                
+                Button:
+                    id: searchBtn
+                    disabled: True
+                    name: 'searchBtn'
+                    text: 'Search'
+                    size_hint: (None, 1)
+                    width: '100dp'
+                    on_release: 
+                        root.search(extension.text)
+                        # root.colorBtn(self)
+                Widget:
+                    size_hint: (None, 1)
+                    width: '30dp'
+                Button:
+                    id: clr_widgets
+                    disabled: True
+                    name: 'clr_widgets'
+                    text: 'Clear'
+                    size_hint: (None, 1)
+                    width: '80dp'
+                    on_release: 
+                        root.clearWidgets()
+                        # root.colorBtn(self)
+            Label:
+                id: loading
+                text: 'Loading files:'
+                size_hint: (1, None)
+                height: self.texture_size[1]
+                text_size: self.size
+                halign: 'left'
+                valign: 'middle'
+                font_size: '14dp'
+                canvas:
+                    Color:
+                        rgba: 1,0,0,0.2
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+        GridLayout:
+            rows:1
+            size_hint: (1, None)
+            height: '20dp'
+            padding: [10,0,0,0]
+            Label:
+                id: percent
+                text: '0.0 %'
+                size_hint: (None, 1)
+                width: '60dp'
+                text_size: self.size
+                halign: 'left'
+                valign: "middle"
+            ProgressBar:
+                id: progressBar
+                value: 0
+                min: 0
+                max: 1
+                size_hint: (1, None)
+                height: '20dp'
+                opacity: 1
+                color: 1,0,0,1
+        GridLayout:
+            rows: 1
+            size_hint: (1, None)
+            height: '40dp'
+            Button:
+                id: find_duplicates
+                name: 'find_duplicates'
+                disabled: True
+                text: 'Size'
+                on_release: root.src()
+            Button:
+                id: find_duplicates1
+                name: 'find_duplicates1'
+                disabled: True
+                text: 'Name'
+                on_release: root.src_name()
+            Button:
+                id: find_duplicates2
+                name: 'find_duplicates2'
+                disabled: True
+                text: 'Hash'
+                on_release: root.src_hash()
+            Button:
+                id: find_duplicates3
+                name: 'find_duplicates3'
+                disabled: True
+                text: 'Color'
+                on_release: root.src_color()
+            Label:
+                id: remainingItems
+                text: ''
+                size_hint: (None, 1)
+                width: dp(120) if int(len(self.text))<20 else self.texture_size[0]
+            Button:
+                id: addBtn1
+                name: 'addBtn1'
+                disabled: True
+                text: 'Add 1'
+                on_release: root.add_item(1)
+            Button:
+                id: addBtn2
+                name: 'addBtn2'
+                disabled: True
+                text: 'Add 2'
+                on_release: root.add_item(2)
+            Button:
+                id: addBtn5
+                name: 'addBtn5'
+                disabled: True
+                text: 'Add 5'
+                on_release: root.add_item(5)
+            Button:
+                id: addBtn10
+                name: 'addBtn10'
+                disabled: True
+                text: 'Add 10'
+                on_release: root.add_item(10)
+            Button:
+                id: addBtn50
+                name: 'addBtn50'
+                disabled: True
+                text: 'Add 50'
+                on_release: root.add_item(50)
+            Button:
+                id: addBtn100
+                name: 'addBtn100'
+                disabled: True
+                text: 'Add 100'
+                on_release: root.add_item(100)
+            Button:
+                id: addAll
+                name: 'addAll'
+                disabled: True
+                text: 'Add All'
+                on_release: root.start_th(self)
+
+        GridLayout:
+            cols: 1
+            RecycleView:
+                id: rv
+                scroll_type: ['bars', 'content']
+                # scroll_wheel_distance: dp(120)
+                scroll_wheel_distance: rbl.default_size[1]
+                bar_width: dp(20)
+                viewclass: 'Row'
+                size_hint: 1, 1
+                # width: '150dp'
+                RecycleBoxLayout:
+                    id: rbl
+                    default_size: None, dp(120) # default initial height of the row
+                    default_size_hint: 1, None
+                    size_hint_y: None
+                    height: self.minimum_height
+                    orientation: 'vertical'
+                    spacing: dp(1)
+
+                    
+
+                        
+
+                        
+
+
+
+
